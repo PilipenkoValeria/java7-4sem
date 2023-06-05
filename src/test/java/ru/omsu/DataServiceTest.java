@@ -4,63 +4,46 @@ import org.junit.Test;
 
 import java.util.*;
 import java.io.*;
-
 import static org.junit.Assert.*;
 
 public class DataServiceTest {
     @Test
-    public void testWriteArrayToStream() throws IOException {
-        int[] array = {1, 2, 3, 4, 5};
-        byte[] expected = {0,0,0,1, 0,0,0,2, 0,0,0,3, 0,0,0,4, 0,0,0,5};
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(5* Integer.BYTES);
-        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
-        DataService.writeArrayToStream(array,byteArrayOutputStream);
-        //System.out.println(Arrays.toString(expected));
-        //System.out.println(Arrays.toString(byteArrayOutputStream.toByteArray()));
-        assertArrayEquals(expected,byteArrayOutputStream.toByteArray());
+    public void testWriteAndReadArrayToStream() throws IOException {
+        int[] arr1 = { 10, -12479, 2, 8500 };
+        try(FileOutputStream file1 = new FileOutputStream("test.txt")) {
+            DataService.writeArrayToStream(file1,arr1);
+        }
+        int[] arr2 = new int[4];
+        try(FileInputStream file2 = new FileInputStream("test.txt")) {
+            DataService.readArrayFromStream(file2, arr2);
+        }
+        assertArrayEquals(arr1, arr2);
     }
 
     @Test
-    public void testReadArrayFromStream() throws IOException {
-        byte[] bytes = {0,0,0,1, 0,0,0,2, 0,0,0,3, 0,0,0,4, 0,0,0,5};
-        int[] expected = {1,2,3,4,5};
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        int[] arr = DataService.readArrayFromStream(byteArrayInputStream);
-        assertArrayEquals(expected, arr);
+    public void testWriteAndReadArrayFromStreamWithSpace() throws IOException {
+        int[] arr1 = { 5, 2, 25, 850000 };
+        try(FileOutputStream file1 = new FileOutputStream("test1.txt")) {
+            DataService.writeArrayToStreamWithSpace(file1,arr1);
+        }
+        int[] arr2 = new int[4];
+        try(FileInputStream file2 = new FileInputStream("test1.txt")) {
+            DataService.readArrayFromStreamWithSpace(file2, arr2);
+        }
+        assertArrayEquals(arr1, arr2);
+
     }
 
-    @Test
-    public void testWriteArrayFromStreamWithSpace() throws IOException {
-        int[] array = {1, 2, 3, 4, 5};
-        byte[] expected = {1, 32, 2, 32, 3, 32, 4, 32, 5, 32};
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(5* Integer.BYTES);
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(byteArrayOutputStream);
-        DataService.writeArrayToStreamWithSpace(array,byteArrayOutputStream);
-        //System.out.println(Arrays.toString(expected));
-        //System.out.println(Arrays.toString(byteArrayOutputStream.toByteArray()));
-        assertArrayEquals(expected,byteArrayOutputStream.toByteArray());
-    }
-
-    @Test
-    public void testReadArrayFromStreamWithSpace() throws IOException {
-        byte[] bytes = {1, 32, 2, 32, 3, 32, 4, 32, 5, 32};
-        int[] expected = {1,2,3,4,5};
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        int[] arr = DataService.readArrayFromStreamWithSpace(byteArrayInputStream);
-        //System.out.println(Arrays.toString(expected));
-        //System.out.println(Arrays.toString(arr));
-        assertArrayEquals(expected, arr);
-    }
 
     @Test
     public void testReadArrayRandomAccessFile() throws IOException {
-        int[] arr = {1,2,3,4,5};
-        int[] expected = {3,4,5};
-        DataService.writeArrayToStream(arr,new FileOutputStream("test.txt"));
-        int[] res = DataService.readArrayRandomAccessFile(2, "test.txt");
-        //System.out.println(Arrays.toString(expected));
-        //System.out.println(Arrays.toString(res));
-        assertArrayEquals(expected,res);
+        int[] arr1 = { 1, 2, 3, 7, 99, 66, 780000 };
+        try(FileOutputStream file1 = new FileOutputStream("test3.txt")) {
+            DataService.writeArrayToStream(file1, arr1);
+        }
+        int[] arr2 = new int[4];
+        DataService.readArrayRandomAccessFile("test3.txt", arr2, 3);
+        assertArrayEquals(new int[] { 7, 99, 66, 780000 }, arr2);
     }
 
     @Test

@@ -3,70 +3,56 @@ import java.io.*;
 import java.util.*;
 
 public class DataService {
-    public static void writeArrayToStream(int[] array, OutputStream outputStream) throws IOException {
+    //1. Записать массив целых чисел в двоичный поток
+    public static void writeArrayToStream(OutputStream outputStream, int[] array) throws IOException {
         try (DataOutputStream dataOutputStream = new DataOutputStream(outputStream)) {
             for (int i : array) {
                 dataOutputStream.writeInt(i);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    public static int[] readArrayFromStream(InputStream inputStream) throws IOException {
+    //1. Прочитать массив целых чисел из двоичного потока
+    public static void readArrayFromStream(InputStream inputStream, int[] array) throws IOException {
         try (DataInputStream dataInputStream = new DataInputStream(inputStream)) {
-            int n = dataInputStream.available()/Integer.BYTES;
-            int[] array = new int[n];
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < array.length; i++) {
                 array[i] = dataInputStream.readInt();
             }
-            return array;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        throw new IOException("Not enough data");
     }
 
-    public static void writeArrayToStreamWithSpace(int[] array, OutputStream outputStream) throws IOException {
+    //2. Cимвольные потоки. В потоке числа должны разделяться пробелами
+    public static void writeArrayToStreamWithSpace(OutputStream outputStream, int[] array) throws IOException {
         try  (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream))  {
-            for (int i : array) {
-                outputStreamWriter.write(i);
-                outputStreamWriter.write(' ');
+            for (int i=0; i< array.length;i++){
+                outputStreamWriter.write(String.valueOf(array[i]));
+                if(i< array.length-1){
+                    outputStreamWriter.write(" ");
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    public static int[] readArrayFromStreamWithSpace(InputStream inputStream) throws IOException {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
-            int n = inputStream.available() / 2;
-            int[] array = new int[n];
-            for (int i = 0; i < n; i++) {
-                array[i] = inputStreamReader.read();
-                inputStreamReader.skip(1);
+    public static void readArrayFromStreamWithSpace(InputStream inputStream, int[] array) throws IOException {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))){
+
+            String[] sArr = reader.readLine().split(" ");
+            for (int i = 0; i < array.length; i++) {
+                array[i] = Integer.parseInt(sArr[i]);
             }
-            return array;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        throw new IOException("Not enough data");
     }
 
-    public static int[] readArrayRandomAccessFile(int pos, String filename) throws IOException {
+    //3. Используя класс RandomAccessFile, прочитайте массив целых чисел, начиная с заданной позиции
+    public static void readArrayRandomAccessFile(String filename, int[] array, int pos) throws IOException {
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "rw")) {
-            int n = (int) randomAccessFile.length()/4 - pos;
-            int[] array = new int[n];
-            randomAccessFile.seek(pos * 4);
-            for (int i = 0; i < n; i++) {
+           randomAccessFile.seek(pos*Integer.BYTES);
+            for (int i = 0; i < array.length; i++) {
                 array[i] = randomAccessFile.readInt();
             }
-            return array;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        throw new IOException("Not enough data");
     }
+    //4. Используя класс File, получите список всех файлов с заданным расширением в заданном каталоге
     public ArrayList<String> findFilesWithExtension(String extension, File catalog){
         ArrayList<String> listFilesWithExtension = new ArrayList<>();
         if(catalog.listFiles() == null){
