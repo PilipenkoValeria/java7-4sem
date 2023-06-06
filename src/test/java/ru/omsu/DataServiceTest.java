@@ -38,11 +38,11 @@ public class DataServiceTest {
     @Test
     public void testReadArrayRandomAccessFile() throws IOException {
         int[] arr1 = { 1, 2, 3, 7, 99, 66, 780000 };
-        try(FileOutputStream file1 = new FileOutputStream("test3.txt")) {
+        try(FileOutputStream file1 = new FileOutputStream("test2.txt")) {
             DataService.writeArrayToStream(file1, arr1);
         }
         int[] arr2 = new int[4];
-        DataService.readArrayRandomAccessFile("test3.txt", arr2, 3);
+        DataService.readArrayRandomAccessFile("test2.txt", arr2, 3);
         assertArrayEquals(new int[] { 7, 99, 66, 780000 }, arr2);
     }
 
